@@ -1,0 +1,22 @@
+[package]
+name = "anno"
+version = "0.1.0"
+authors = ["coljnr9 <coljnr9@hotmail.com>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+dioxus = { version = "0.5.1", features = ["web", "router"] }
+
+# Debug
+tracing = "0.1.40"
+dioxus-logger = "0.5.1"
+log = "0.4.22"
+wasm-logger = "0.2.0"
+web-sys = { version = "0.3.69", features = ["Clipboard", "Navigator", "Window"] }
+dioxus-helmet ={ git = "https://github.com/samu698/dioxus-helmet", branch="main"}
+reqwest = { version = "0.12.5", features = ["json"] }
+serde = { version = "1.0.204", features = ["derive"] }
+rss = "2.0.8"
