@@ -48,7 +48,7 @@ fn main() {
 #[component]
 fn HeadElements(path: String) -> Element {
     rsx! {
-        Helmet { 
+        Helmet {
             link { rel: "preconnect", href: "https://fonts.googleapis.com" }
             link {
                 crossorigin: "false",
@@ -306,6 +306,11 @@ fn ArchiveArticleList() -> Element {
     };
     rsx! {
         div { class: "article-archive-list",
+            ArticlePreview { article: article1.clone() }
+            ArticlePreview { article: article1.clone() }
+            ArticlePreview { article: article1.clone() }
+            ArticlePreview { article: article1.clone() }
+            ArticlePreview { article: article1.clone() }
             ArticlePreview { article: article1.clone() }
             ArticlePreview { article: article1.clone() }
             ArticlePreview { article: article1.clone() }
