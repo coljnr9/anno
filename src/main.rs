@@ -48,7 +48,7 @@ fn main() {
 #[component]
 fn HeadElements(path: String) -> Element {
     rsx! {
-        Helmet {
+        Helmet { 
             link { rel: "preconnect", href: "https://fonts.googleapis.com" }
             link {
                 crossorigin: "false",
@@ -70,7 +70,7 @@ fn BeginSubmit() -> Element {
     rsx! {
         Link { to: Route::Submission {}, class: "begin-submit",
             div {
-                p { "Paste URL"  }
+                p { "Paste URL" }
             }
         }
     }
@@ -107,15 +107,15 @@ fn AuthorLink(author: ReadOnlySignal<Option<Channel>>, author_id: usize) -> Elem
     match author() {
         Some(channel) => {
             rsx! {
-            div { class: "author-link-region",
-                Link {
-                    to: Route::AuthorPage { author_id },
-                    onclick: |e: MouseEvent| {
-                        e.stop_propagation();
-                    },
-                    div { "PLACEHOLDER: {channel.link}" }
+                div { class: "author-link-region",
+                    Link {
+                        to: Route::AuthorPage { author_id },
+                        onclick: |e: MouseEvent| {
+                            e.stop_propagation();
+                        },
+                        div { "PLACEHOLDER: {channel.link}" }
+                    }
                 }
-            }
             }
         }
         None => {
@@ -161,11 +161,9 @@ fn ArticleSubmissionPreview() -> Element {
     match &*cb.read_unchecked() {
         Some(d) => {
             rsx! {
-                div {
-                    class: "article-submission-preview", iframe {
-                    src: d.clone(),
-                    height: "100%",
-                } }
+                div { class: "article-submission-preview",
+                    iframe { src: d.clone(), height: "100%" }
+                }
             }
         }
         // let d_ = d.clone();
@@ -197,10 +195,7 @@ fn ArticleTitle(title: ReadOnlySignal<Option<Channel>>, article_id: usize) -> El
         Some(c) => {
             rsx! {
                 Link { to: Route::ArticlePage { article_id },
-                    div { class: "article-title-region",
-                        "PLACEHOLDER: {c.title}"
-                    }
-
+                    div { class: "article-title-region", "PLACEHOLDER: {c.title}" }
                 }
             }
         }
@@ -310,34 +305,12 @@ fn ArchiveArticleList() -> Element {
         preview: "Preview text preview text preview text".to_string(),
     };
     rsx! {
-        div {
-            class: "article-archive-list",
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
-        ArticlePreview { article: article1.clone() }
+        div { class: "article-archive-list",
+            ArticlePreview { article: article1.clone() }
+            ArticlePreview { article: article1.clone() }
+            ArticlePreview { article: article1.clone() }
+            ArticlePreview { article: article1.clone() }
+            ArticlePreview { article: article1.clone() }
         }
     }
 }
