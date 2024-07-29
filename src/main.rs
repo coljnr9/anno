@@ -1,11 +1,16 @@
 #![allow(non_snake_case)]
 
+use std::{cell::RefCell, rc::Rc};
+
 use dioxus::prelude::*;
 use dioxus_helmet::Helmet;
 use dioxus_router::prelude::*;
 use log::Level;
 
 use rss::Channel;
+
+mod clipboard;
+use clipboard::use_clipboard;
 
 #[derive(PartialEq, Clone, Props)]
 pub struct Article {
@@ -16,12 +21,9 @@ pub struct Article {
 }
 
 pub async fn get_rss_channel() -> Channel {
-    log::info!("get_rss_channel");
     if let Some(c) = CHANNEL() {
-        log::info!("Returning stored value");
         return c;
     }
-    log::info!("=== Fetching data ===");
     let content = reqwest::get("https://feeds.simplecast.com/qm_9xx0g")
         .await
         .expect("Error retrieving feed")
@@ -61,16 +63,14 @@ fn HeadElements(path: String) -> Element {
     }
 }
 
+#[component]
 fn BeginSubmit() -> Element {
     // TODO(coljnr9) Deal with the mess that is clipboard on web.
-    let window = web_sys::window().expect("Window returned none");
-    let _navigator = window.navigator();
-    // let clipboard = navigator.clipboard().expect("Clipboard returned None");
 
     rsx! {
         Link { to: Route::Submission {}, class: "begin-submit",
             div {
-                p { "Paste URL" }
+                p { "Paste URL"  }
             }
         }
     }
@@ -93,6 +93,15 @@ fn GoToArchive() -> Element {
     }
 }
 
+fn GoHome() -> Element {
+    rsx! {
+        Link { to: Route::Home {}, class: "go-home",
+            div {
+                p { "Home" }
+            }
+        }
+    }
+}
 #[component]
 fn AuthorLink(author: ReadOnlySignal<Option<Channel>>, author_id: usize) -> Element {
     match author() {
@@ -102,10 +111,9 @@ fn AuthorLink(author: ReadOnlySignal<Option<Channel>>, author_id: usize) -> Elem
                 Link {
                     to: Route::AuthorPage { author_id },
                     onclick: |e: MouseEvent| {
-                        log::info!("{:?}", e);
                         e.stop_propagation();
                     },
-                    div { "{channel.link}" }
+                    div { "PLACEHOLDER: {channel.link}" }
                 }
             }
             }
@@ -116,7 +124,6 @@ fn AuthorLink(author: ReadOnlySignal<Option<Channel>>, author_id: usize) -> Elem
                     Link {
                         to: Route::AuthorPage { author_id },
                         onclick: |e: MouseEvent| {
-                            log::info!("{:?}", e);
                             e.stop_propagation();
                         },
                         div { "Loading..." }
@@ -144,28 +151,60 @@ fn CancelSubmission() -> Element {
     }
 }
 
+async fn load_webpage(url: String) -> String {
+    let page = reqwest::get(url).await.expect("Error fetching webpage");
+    page.text().await.expect("Error retrieving text")
+}
 #[component]
 fn ArticleSubmissionPreview() -> Element {
-    rsx! {
-        div { class: "article-submission-preview", "preview" }
+    let cb = use_resource(move || use_clipboard());
+    match &*cb.read_unchecked() {
+        Some(d) => {
+            rsx! {
+                div {
+                    class: "article-submission-preview", iframe {
+                    src: d.clone(),
+                    height: "100%",
+                } }
+            }
+        }
+        // let d_ = d.clone();
+        // let webpage = use_resource(move || load_webpage(d_.clone()));
+        // match &*webpage.read_unchecked() {
+        //     Some(wb) => {
+        //         rsx! {
+        //             div { class: "article-submission-preview", iframe {
+        //                 src: d
+        //             } }
+        //         }
+        //     }
+        //     None => {
+        //         rsx! { div { class: "article-submission-preview", "Loading..." }
+        //         }
+        //     }
+        // }
+        // }
+        None => {
+            rsx! {
+                div { class: "article-submission-preview", "No URL" }
+            }
+        }
     }
 }
 #[component]
 fn ArticleTitle(title: ReadOnlySignal<Option<Channel>>, article_id: usize) -> Element {
     match title() {
         Some(c) => {
-            log::info!("Rendering title 1");
             rsx! {
                 Link { to: Route::ArticlePage { article_id },
                     div { class: "article-title-region",
-                        "{c.title}"
+                        "PLACEHOLDER: {c.title}"
                     }
 
                 }
             }
         }
         None => {
-            log::info!("Rendering title 2");
             rsx! {
                 div { class: "article-title-region", "loading" }
             }
@@ -186,14 +225,11 @@ fn ArticlePreview(article: ReadOnlySignal<Article>) -> Element {
 
     match &*channel.read_unchecked() {
         Some(c) => {
-            log::info!("{}", c.title);
             if CHANNEL().is_none() {
                 *CHANNEL.write() = Some(c.clone())
             }
         }
-        None => {
-            log::info!("Data not yet ready");
-        }
+        None => {}
     };
 
     rsx! {
@@ -266,7 +302,7 @@ fn Home() -> Element {
 }
 
 #[component]
-fn Archive() -> Element {
+fn ArchiveArticleList() -> Element {
     let article1 = Article {
         id: 1,
         author: "Author".to_string(),
@@ -274,13 +310,42 @@ fn Archive() -> Element {
         preview: "Preview text preview text preview text".to_string(),
     };
     rsx! {
-        Link { to: Route::Home {}, { "Home" } }
-        { "The Archive " },
+        div {
+            class: "article-archive-list",
         ArticlePreview { article: article1.clone() }
         ArticlePreview { article: article1.clone() }
         ArticlePreview { article: article1.clone() }
         ArticlePreview { article: article1.clone() }
         ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        ArticlePreview { article: article1.clone() }
+        }
+    }
+}
+#[component]
+fn Archive() -> Element {
+    rsx! {
+        GoHome {}
+        ArchiveArticleList {}
     }
 }
 
@@ -303,6 +368,7 @@ enum Route {
 }
 
 static CHANNEL: GlobalSignal<Option<Channel>> = Signal::global(|| None);
+static CLIPBOARD_DATA: GlobalSignal<Option<String>> = Signal::global(|| None);
 
 pub fn App() -> Element {
     rsx! {

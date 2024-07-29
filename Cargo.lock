@@ -47,6 +47,7 @@ dependencies = [
  "rss",
  "serde",
  "tracing",
+ "wasm-bindgen-futures",
  "wasm-logger",
  "web-sys",
 ]
