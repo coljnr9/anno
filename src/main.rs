@@ -10,7 +10,10 @@ use log::Level;
 use rss::Channel;
 
 mod clipboard;
+mod extraction;
 use clipboard::use_clipboard;
+use extraction::{ArticleRecord, Extract, ExtractorApi};
+use url::Url;
 
 #[derive(PartialEq, Clone, Props)]
 pub struct Article {
@@ -155,33 +158,39 @@ async fn load_webpage(url: String) -> String {
     let page = reqwest::get(url).await.expect("Error fetching webpage");
     page.text().await.expect("Error retrieving text")
 }
+
+async fn load_article_record(url: String) -> ArticleRecord {
+    let extractor = ExtractorApi {
+        api_key: "2ace344eb393d6963d02599efa1a3772fbf2b8be".to_owned(),
+        endpoint: Url::parse("https://extractorapi.com/api/v1/extractor").unwrap(),
+    };
+
+    let url = Url::parse(&url).unwrap();
+    extractor.extract_url(&url).await.unwrap()
+}
+
 #[component]
 fn ArticleSubmissionPreview() -> Element {
     let cb = use_resource(move || use_clipboard());
     match &*cb.read_unchecked() {
         Some(d) => {
-            rsx! {
-                div { class: "article-submission-preview",
-                    iframe { src: d.clone(), height: "100%" }
+            let d_ = d.clone();
+            let article_record_resource = use_resource(move || load_article_record(d_.clone()));
+            match &*article_record_resource.read_unchecked() {
+                Some(article_record) => {
+                    rsx! {
+                        // } }
+                        div { class: "article-submission-preview", { article_record.text.clone() }
+
+                        }
+                    }
+                }
+                None => {
+                    rsx! { div { class: "article-submission-preview", "Loading..." }
+                    }
                 }
             }
         }
-        // let d_ = d.clone();
-        // let webpage = use_resource(move || load_webpage(d_.clone()));
-        // match &*webpage.read_unchecked() {
-        //     Some(wb) => {
-        //         rsx! {
-        //             div { class: "article-submission-preview", iframe {
-        //                 src: d
-        //             } }
-        //         }
-        //     }
-        //     None => {
-        //         rsx! { div { class: "article-submission-preview", "Loading..." }
-        //         }
-        //     }
-        // }
-        // }
         None => {
             rsx! {
                 div { class: "article-submission-preview", "No URL" }
