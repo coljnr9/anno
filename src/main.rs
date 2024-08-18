@@ -5,14 +5,14 @@ use std::{cell::RefCell, rc::Rc};
 use dioxus::prelude::*;
 use dioxus_helmet::Helmet;
 use dioxus_router::prelude::*;
-use log::Level;
+use log::{info, Level};
 
 use rss::Channel;
 
 mod clipboard;
 mod extraction;
 use clipboard::use_clipboard;
-use extraction::{ArticleRecord, Extract, ExtractorApi};
+use extraction::{ArticleRecord, Extract, ExtractorApi, Ujeebu};
 use url::Url;
 
 #[derive(PartialEq, Clone, Props)]
@@ -160,12 +160,17 @@ async fn load_webpage(url: String) -> String {
 }
 
 async fn load_article_record(url: String) -> ArticleRecord {
-    let extractor = ExtractorApi {
-        api_key: "2ace344eb393d6963d02599efa1a3772fbf2b8be".to_owned(),
-        endpoint: Url::parse("https://extractorapi.com/api/v1/extractor").unwrap(),
+    // let extractor = ExtractorApi {
+    //     api_key: "2ace344eb393d6963d02599efa1a3772fbf2b8be".to_owned(),
+    //     endpoint: Url::parse("https://extractorapi.com/api/v1/extractor").unwrap(),
+    // };
+    let extractor = Ujeebu {
+        api_key: "ozyexBzf2Y4IbmVOoYsOZCBUQkucI1dc".to_owned(),
+        endpoint: Url::parse("https://api.ujeebu.com/extract").unwrap(),
     };
 
     let url = Url::parse(&url).unwrap();
+    log::info!("Runnig extraction");
     extractor.extract_url(&url).await.unwrap()
 }
 
