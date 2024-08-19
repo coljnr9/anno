@@ -20,16 +20,16 @@ pub async fn use_clipboard() -> String {
     let s2 = Rc::clone(&s);
 
     let read_text = |s: Rc<RefCell<String>>| async move {
-        if let Some(clipboard) = clipboard.clone() {
-            let read_closure = Closure::wrap(Box::new(move |data: JsValue| {
-                let d = data.as_string().expect("Error getting string");
-                log::info!("In closure: {d}");
-                *s.borrow_mut() = d;
-            }) as Box<dyn FnMut(JsValue)>);
-            let promise = clipboard.read_text().then(&read_closure);
-            let res = wasm_bindgen_futures::JsFuture::from(promise).await;
-            read_closure.forget();
-        }
+        let clipboard = clipboard.clone();
+        // if let Some(clipboard) = clipboard.clone() {
+        let read_closure = Closure::wrap(Box::new(move |data: JsValue| {
+            let d = data.as_string().expect("Error getting string");
+            log::info!("In closure: {d}");
+            *s.borrow_mut() = d;
+        }) as Box<dyn FnMut(JsValue)>);
+        let promise = clipboard.read_text().then(&read_closure);
+        let res = wasm_bindgen_futures::JsFuture::from(promise).await;
+        read_closure.forget();
     };
 
     read_text(s).await;
