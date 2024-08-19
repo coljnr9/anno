@@ -85,19 +85,15 @@ impl Extract for Ujeebu {
         let mut api_url = self.endpoint.clone();
 
         api_url.query_pairs_mut().append_pair("url", url.as_str());
+        api_url
+            .query_pairs_mut()
+            .append_pair("apikey", &self.api_key.as_str());
 
-        let client = reqwest::Client::new();
-        let res: UjeebuResponse = client
-            .get(api_url)
-            .header("Access-Control-Allow-Origin", "*")
-            .header("Aceess-Control-Allow-Credentials", "true")
-            .header("ApiKey", &self.api_key)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let client = reqwest::Client::builder().build()?;
 
-        info!("{res:#?}");
+        let response = client.request(reqwest::Method::GET, api_url).send().await?;
+
+        let res: UjeebuResponse = response.json().await?;
         Ok(ArticleRecord {
             title: res.article.title,
             html: res.article.html,

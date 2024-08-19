@@ -170,7 +170,6 @@ async fn load_article_record(url: String) -> ArticleRecord {
     };
 
     let url = Url::parse(&url).unwrap();
-    log::info!("Runnig extraction");
     extractor.extract_url(&url).await.unwrap()
 }
 
@@ -185,9 +184,7 @@ fn ArticleSubmissionPreview() -> Element {
                 Some(article_record) => {
                     rsx! {
                         // } }
-                        div { class: "article-submission-preview", { article_record.text.clone() }
-
-                        }
+                        iframe { class: "article-submission-preview", srcdoc: article_record.html.clone() }
                     }
                 }
                 None => {
